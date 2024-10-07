@@ -27,7 +27,7 @@ export const WikidataGraph: FC<GraphProps> = (
             node => graph.addNode(node.id, {
                 x: node.x,
                 y: node.y,
-                size: 4,
+                size: 5,
                 color: "#000000",
                 label: node.label,
                 wikidata_label: node.label,
@@ -43,7 +43,9 @@ export const WikidataGraph: FC<GraphProps> = (
                     {
                         label: edge.property,
                         type: 'arrow',
+                        size: 2,
                         color: propertyColorMap.get(edge.property)?.color,
+                        hidden: propertyColorMap.get(edge.property)?.hidden,
                     },
                 );
             }

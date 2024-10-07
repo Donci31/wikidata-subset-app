@@ -18,7 +18,7 @@ import {Popup} from "@/components/Popup";
 import {WikidataGraph} from "@/components/WikidataGraph";
 import {SearchBar} from "@/components/SearchBar";
 
-import node from "@/data/node2.json";
+import node from "@/data/node.json";
 import edge from "@/data/edge.json";
 import {EdgeColorDisplay} from "@/components/EdgeColorDisplay";
 import {ColorMapType} from "@/types/ColorMapType";
