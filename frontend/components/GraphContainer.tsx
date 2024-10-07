@@ -18,9 +18,10 @@ import {Popup} from "@/components/Popup";
 import {WikidataGraph} from "@/components/WikidataGraph";
 import {SearchBar} from "@/components/SearchBar";
 
-import node from "@/data/node.json";
+import node from "@/data/node2.json";
 import edge from "@/data/edge.json";
 import {EdgeColorDisplay} from "@/components/EdgeColorDisplay";
+import {ColorMapType} from "@/types/ColorMapType";
 
 const GraphEvents: React.FC<{ setPopup: (node: NodeType | null) => void }> = ({ setPopup }) => {
     const registerEvents = useRegisterEvents();
@@ -59,6 +60,13 @@ const GraphEvents: React.FC<{ setPopup: (node: NodeType | null) => void }> = ({ 
                 sigma.getGraph().setNodeAttribute(draggedNode, "x", pos.x);
                 sigma.getGraph().setNodeAttribute(draggedNode, "y", pos.y);
 
+                const target = node.find(node => node.id === draggedNode)
+
+                if (target) {
+                    target.x = pos.x;
+                    target.y = pos.y;
+                }
+
                 e.preventSigmaDefault();
                 e.original.preventDefault();
                 e.original.stopPropagation();
@@ -80,7 +88,16 @@ const GraphEvents: React.FC<{ setPopup: (node: NodeType | null) => void }> = ({ 
     return null;
 };
 
-export default function GraphContainer({ propertyColorMap }: { propertyColorMap: Record<string, string> }) {
+const getRandomColor = () => {
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
+
+export default function GraphContainer() {
     const [popup, setPopup] = useState<NodeType | null>(null);
 
     const sigmaStyle = { height: "770px", width: "1920px" }
@@ -91,10 +108,34 @@ export default function GraphContainer({ propertyColorMap }: { propertyColorMap:
         renderEdgeLabels: true,
     }
 
+    const initialColorMap: Map<string, ColorMapType> = new Map<string, ColorMapType>()
+
+    edge.forEach(edge => {
+        const colEdge = initialColorMap.get(edge.property)
+
+        if (colEdge == undefined) {
+            const color: ColorMapType = {property: edge.property, color: getRandomColor(), hidden: false}
+
+            initialColorMap.set(edge.property, color);
+        }
+    })
+
+    const [propertyColorMap, setPropertyColorMap] = useState(initialColorMap);
+
+    const handleColorChange = (property: string, newColor: ColorMapType) => {
+        setPropertyColorMap(prevMap => {
+            const newMap = new Map(prevMap);
+
+            newMap.set(property, newColor);
+
+            return newMap;
+        });
+    };
+
     return (
         <SigmaContainer style={sigmaStyle} settings={settings} >
             <ControlsContainer position={"top-left"}>
-                <EdgeColorDisplay propertyColorMap={propertyColorMap} />
+                <EdgeColorDisplay propertyColorMap={propertyColorMap} onColorChange={handleColorChange} />
             </ControlsContainer>
             <WikidataGraph nodes={node} edges={edge} propertyColorMap={propertyColorMap} />
             <GraphEvents setPopup={setPopup} />

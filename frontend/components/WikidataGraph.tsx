@@ -1,14 +1,14 @@
-import {FC, useEffect, useRef} from "react";
-import {useLayoutRandom} from "@react-sigma/layout-random";
-import {useLoadGraph} from "@react-sigma/core";
+import { FC, useEffect } from "react";
+import { useLoadGraph } from "@react-sigma/core";
 import Graph from "graphology";
-import {EdgeType} from "@/types/EdgeType";
-import {NodeInputType} from "@/types/NodeInputType";
+import { EdgeType } from "@/types/EdgeType";
+import { NodeType } from "@/types/NodeType";
+import {ColorMapType} from "@/types/ColorMapType";
 
 export interface GraphProps {
-    nodes: Array<NodeInputType>,
+    nodes: Array<NodeType>,
     edges: Array<EdgeType>,
-    propertyColorMap: Record<string, string>
+    propertyColorMap: Map<string, ColorMapType>
 }
 
 export const WikidataGraph: FC<GraphProps> = (
@@ -18,26 +18,23 @@ export const WikidataGraph: FC<GraphProps> = (
         propertyColorMap
     }: GraphProps
 ) => {
-    const {positions, assign} = useLayoutRandom();
     const loadGraph = useLoadGraph();
-
-    const propertyColorMapRef = useRef(propertyColorMap);
 
     useEffect(() => {
         const graph = new Graph();
 
         nodes.forEach(
-            node =>
-                graph.addNode(node.id, {
-                    x: 0,
-                    y: 0,
-                    size: 4,
-                    color: "#000000",
-                    label: node.label,
-                    wikidata_label: node.label,
-                })
-        )
+            node => graph.addNode(node.id, {
+                x: node.x,
+                y: node.y,
+                size: 4,
+                color: "#000000",
+                label: node.label,
+                wikidata_label: node.label,
+            })
+        );
 
+        // Add edges to the graph
         edges.forEach(
             edge => {
                 graph.addEdge(
@@ -46,15 +43,14 @@ export const WikidataGraph: FC<GraphProps> = (
                     {
                         label: edge.property,
                         type: 'arrow',
-                        color: propertyColorMapRef.current[edge.property]
+                        color: propertyColorMap.get(edge.property)?.color,
                     },
-                )
+                );
             }
-        )
+        );
 
         loadGraph(graph);
-        assign();
-    }, [assign, loadGraph, positions, nodes, edges]);
+    }, [propertyColorMap]);
 
     return null;
 };
