@@ -1,47 +1,60 @@
-import {FC, useEffect} from "react";
-import NodeInfo from "@/types/NodeInfo";
+import {FC, useEffect, useRef} from "react";
 import {useLayoutRandom} from "@react-sigma/layout-random";
 import {useLoadGraph} from "@react-sigma/core";
 import Graph from "graphology";
-import node from "@/data/node.json";
-import edge from "@/data/edge.json";
+import {EdgeType} from "@/types/EdgeType";
+import {NodeInputType} from "@/types/NodeInputType";
 
-export const WikidataGraph: FC<{ setNodeData: (data: Map<string, NodeInfo>) => void }> = ({ setNodeData }) => {
-    const { positions, assign } = useLayoutRandom();
+export interface GraphProps {
+    nodes: Array<NodeInputType>,
+    edges: Array<EdgeType>,
+    propertyColorMap: Record<string, string>
+}
+
+export const WikidataGraph: FC<GraphProps> = (
+    {
+        nodes,
+        edges,
+        propertyColorMap
+    }: GraphProps
+) => {
+    const {positions, assign} = useLayoutRandom();
     const loadGraph = useLoadGraph();
+
+    const propertyColorMapRef = useRef(propertyColorMap);
 
     useEffect(() => {
         const graph = new Graph();
-        const nodeDataMap = new Map<string, NodeInfo>();
 
-        for (let i = 0; i < node.length; i++) {
-            graph.addNode(node[i].id, {
-                x: 0,
-                y: 0,
-                label: node[i].label,
-                size: 4,
-            });
-        }
+        nodes.forEach(
+            node =>
+                graph.addNode(node.id, {
+                    x: 0,
+                    y: 0,
+                    size: 4,
+                    color: "#000000",
+                    label: node.label,
+                    wikidata_label: node.label,
+                })
+        )
 
-        for (let i = 0; i < edge.length; i++) {
-            graph.addEdge(edge[i].src, edge[i].dst, { label: edge[i].property });
-        }
+        edges.forEach(
+            edge => {
+                graph.addEdge(
+                    edge.src,
+                    edge.dst,
+                    {
+                        label: edge.property,
+                        type: 'arrow',
+                        color: propertyColorMapRef.current[edge.property]
+                    },
+                )
+            }
+        )
 
         loadGraph(graph);
         assign();
-
-        graph.forEachNode((nodeId, attributes) => {
-            const nodeInfo: NodeInfo = {
-                id: nodeId,
-                label: attributes.label,
-                x: attributes.x,
-                y: attributes.y,
-            };
-            nodeDataMap.set(nodeId, nodeInfo);
-        });
-
-        setNodeData(nodeDataMap);
-    }, [assign, loadGraph, setNodeData, positions]);
+    }, [assign, loadGraph, positions, nodes, edges]);
 
     return null;
 };

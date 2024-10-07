@@ -1,7 +1,7 @@
 import React, {CSSProperties, FC} from "react";
-import NodeInfo from "@/types/NodeInfo";
+import {NodeType} from "@/types/NodeType";
 
-export const Popup: FC<{ nodeInfo: NodeInfo | null }> = ({ nodeInfo }) => {
+export const Popup: FC<{ nodeInfo: NodeType | null }> = ({ nodeInfo }) => {
     if (!nodeInfo) return null;
 
     const style: CSSProperties = {

@@ -4,7 +4,6 @@ import React, {useState, useEffect} from "react";
 
 import {
     ControlsContainer,
-    SearchControl,
     FullScreenControl,
     SigmaContainer,
     ZoomControl,
@@ -14,11 +13,16 @@ import {
 
 import "@react-sigma/core/lib/react-sigma.min.css";
 
-import NodeInfo from "@/types/NodeInfo";
+import {NodeType} from "@/types/NodeType";
 import {Popup} from "@/components/Popup";
 import {WikidataGraph} from "@/components/WikidataGraph";
+import {SearchBar} from "@/components/SearchBar";
 
-const GraphEvents: React.FC<{ setPopup: (node: NodeInfo | null) => void, nodeData: Map<string, NodeInfo> }> = ({ setPopup, nodeData }) => {
+import node from "@/data/node.json";
+import edge from "@/data/edge.json";
+import {EdgeColorDisplay} from "@/components/EdgeColorDisplay";
+
+const GraphEvents: React.FC<{ setPopup: (node: NodeType | null) => void }> = ({ setPopup }) => {
     const registerEvents = useRegisterEvents();
     const sigma = useSigma();
     const [draggedNode, setDraggedNode] = useState<string | null>(null);
@@ -27,16 +31,20 @@ const GraphEvents: React.FC<{ setPopup: (node: NodeInfo | null) => void, nodeDat
         registerEvents({
             enterNode: (event) => {
                 const nodeId = event.node;
-                const nodeInfo = nodeData.get(nodeId);
+                const x = event.event.x;
+                const y = event.event.y;
+                const nodeInfo = sigma.getGraph().getNodeAttributes(nodeId);
 
-                if (nodeInfo) {
-                    const { x, y } = event.event;
-                    setPopup({
-                        ...nodeInfo,
-                        x: x + 10,
-                        y: y + 10,
-                    });
+                const convertedNodeInfo: NodeType = {
+                    id: nodeInfo.id,
+                    label: nodeInfo.wikidata_label,
+                    x: x + 10,
+                    y: y + 10,
                 }
+
+                setPopup(convertedNodeInfo);
+            },
+            enterEdge: () => {
             },
             leaveNode: () => {
                 setPopup(null);
@@ -67,32 +75,35 @@ const GraphEvents: React.FC<{ setPopup: (node: NodeInfo | null) => void, nodeDat
                 if (!sigma.getCustomBBox()) sigma.setCustomBBox(sigma.getBBox());
             },
         });
-    }, [registerEvents, nodeData, sigma, draggedNode, setPopup]);
+    }, [registerEvents, sigma, draggedNode, setPopup]);
 
     return null;
 };
 
-export default function GraphContainer() {
-    const [popup, setPopup] = useState<NodeInfo | null>(null);
-    const [nodeData, setNodeData] = useState<Map<string, NodeInfo>>(new Map());
+export default function GraphContainer({ propertyColorMap }: { propertyColorMap: Record<string, string> }) {
+    const [popup, setPopup] = useState<NodeType | null>(null);
 
     const sigmaStyle = { height: "770px", width: "1920px" }
 
     const settings = {
         allowInvalidContainer: true,
+        enableEdgeEvents: true,
         renderEdgeLabels: true,
     }
 
     return (
         <SigmaContainer style={sigmaStyle} settings={settings} >
-            <WikidataGraph setNodeData={setNodeData} />
-            <GraphEvents setPopup={setPopup} nodeData={nodeData} />
+            <ControlsContainer position={"top-left"}>
+                <EdgeColorDisplay propertyColorMap={propertyColorMap} />
+            </ControlsContainer>
+            <WikidataGraph nodes={node} edges={edge} propertyColorMap={propertyColorMap} />
+            <GraphEvents setPopup={setPopup} />
             <ControlsContainer position={"bottom-right"}>
                 <ZoomControl />
                 <FullScreenControl />
             </ControlsContainer>
             <ControlsContainer position={"top-right"}>
-                <SearchControl style={{ width: "200px" }} />
+                <SearchBar style={{ width: "200px" }} />
             </ControlsContainer>
             <Popup nodeInfo={popup} />
         </SigmaContainer>
