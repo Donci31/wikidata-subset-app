@@ -7,7 +7,9 @@ interface AddNodeDialogProps {
     onSubmit: (label: string) => void;
 }
 
-export default function AddNodeDialog({ open, onClose, onSubmit }: AddNodeDialogProps) {
+const AddNodeDialog: React.FC<AddNodeDialogProps> = (
+    { open, onClose, onSubmit }: AddNodeDialogProps
+) => {
     const [nodeLabel, setNodeLabel] = useState("");
 
     const handleSubmit = () => {
@@ -42,3 +44,5 @@ export default function AddNodeDialog({ open, onClose, onSubmit }: AddNodeDialog
         </Dialog>
     );
 }
+
+export default AddNodeDialog;

@@ -1,7 +1,11 @@
 import React, {CSSProperties, FC} from "react";
-import {NodeType} from "@/types/NodeType";
+import NodeType from "@/types/NodeType";
 
-export const Popup: FC<{ nodeInfo: NodeType | null }> = ({ nodeInfo }) => {
+interface PopupProps {
+    nodeInfo: NodeType | null;
+}
+
+const Popup: FC<PopupProps> = ({ nodeInfo }: PopupProps) => {
     if (!nodeInfo) return null;
 
     const style: CSSProperties = {
@@ -21,3 +25,5 @@ export const Popup: FC<{ nodeInfo: NodeType | null }> = ({ nodeInfo }) => {
         </div>
     );
 };
+
+export default Popup;

@@ -1,24 +1,38 @@
-import React, { useState } from "react";
-import { ColorMapType } from "@/types/ColorMapType";
-import { Box, Typography, Checkbox, Tooltip, FormControlLabel, List, ListItem, Collapse, IconButton } from "@mui/material";
-import { ExpandMore, ExpandLess } from '@mui/icons-material'; // Icons for expand/collapse
+import React, {useState} from "react";
+import ColorMapType from "@/types/ColorMapType";
+import {
+    Box,
+    Typography,
+    Checkbox,
+    Tooltip,
+    FormControlLabel,
+    List,
+    ListItem,
+    Collapse,
+    IconButton
+} from "@mui/material";
+import {ExpandMore, ExpandLess} from '@mui/icons-material'; // Icons for expand/collapse
 
-export const EdgeColorDisplay = (
-    { propertyColorMap, onColorChange }: {
-        propertyColorMap: Map<string, ColorMapType>,
-        onColorChange: (property: string, newColor: ColorMapType) => void
-    }) => {
+interface EdgeColorDisplayProps {
+    propertyColorMap: Map<string, ColorMapType>;
+    onColorChange: (property: string, newColor: ColorMapType) => void;
+}
+
+const EdgeColorDisplay: React.FC<EdgeColorDisplayProps> = (
+    {propertyColorMap, onColorChange}: EdgeColorDisplayProps
+) => {
     const [isListOpen, setIsListOpen] = useState(false); // Track whether the list is open or closed
 
     return (
         <Box p={4} boxShadow={3} borderRadius={2} bgcolor="background.paper">
             {/* Header with toggle functionality */}
-            <Box display="flex" justifyContent="space-between" alignItems="center" onClick={() => setIsListOpen(!isListOpen)} sx={{ cursor: 'pointer' }}>
+            <Box display="flex" justifyContent="space-between" alignItems="center"
+                 onClick={() => setIsListOpen(!isListOpen)} sx={{cursor: 'pointer'}}>
                 <Typography variant="h5" gutterBottom>
                     Properties
                 </Typography>
                 <IconButton>
-                    {isListOpen ? <ExpandLess /> : <ExpandMore />} {/* Change icon based on open/closed state */}
+                    {isListOpen ? <ExpandLess/> : <ExpandMore/>} {/* Change icon based on open/closed state */}
                 </IconButton>
             </Box>
 
@@ -87,7 +101,7 @@ export const EdgeColorDisplay = (
                                             />
                                         }
                                         label="Hidden"
-                                        sx={{ ml: 2 }}
+                                        sx={{ml: 2}}
                                     />
                                 </Tooltip>
                             </ListItem>
@@ -98,3 +112,5 @@ export const EdgeColorDisplay = (
         </Box>
     );
 };
+
+export default EdgeColorDisplay;

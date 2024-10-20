@@ -1,17 +1,17 @@
 import { FC, useEffect } from "react";
 import { useLoadGraph } from "@react-sigma/core";
 import Graph from "graphology";
-import { EdgeType } from "@/types/EdgeType";
-import { NodeType } from "@/types/NodeType";
-import {ColorMapType} from "@/types/ColorMapType";
+import EdgeType from "@/types/EdgeType";
+import NodeType from "@/types/NodeType";
+import ColorMapType from "@/types/ColorMapType";
 
-export interface GraphProps {
+interface GraphProps {
     nodes: Array<NodeType>,
     edges: Array<EdgeType>,
     propertyColorMap: Map<string, ColorMapType>
 }
 
-export const WikidataGraph: FC<GraphProps> = (
+const WikidataGraph: FC<GraphProps> = (
     {
         nodes,
         edges,
@@ -56,3 +56,5 @@ export const WikidataGraph: FC<GraphProps> = (
 
     return null;
 };
+
+export default WikidataGraph;

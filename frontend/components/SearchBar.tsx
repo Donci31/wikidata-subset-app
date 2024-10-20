@@ -106,3 +106,5 @@ export const SearchBar: React.FC<SearchControlProps> = (
         </Box>
     );
 };
+
+export default SearchBar;
