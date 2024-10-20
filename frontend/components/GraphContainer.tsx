@@ -18,16 +18,8 @@ import { Fab } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 import AddNodeDialog from "@/components/AddNodeDialog";
 import GraphEvents from "@/components/GraphEvents";
-import debounce from "@/utils/debounce";  // Import debounce utility
-
-const getRandomColor = () => {
-    const letters = '0123456789ABCDEF';
-    let color = '#';
-    for (let i = 0; i < 6; i++) {
-        color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
-}
+import debounce from "@/utils/debounce";
+import ColorMapManager from "@/utils/ColorMapManager";  // Import the new class
 
 interface GraphContainerProps {
     sigmaStyle: React.CSSProperties;
@@ -35,30 +27,18 @@ interface GraphContainerProps {
 }
 
 const GraphContainer: React.FC<GraphContainerProps> = ({ sigmaStyle, settings }) => {
-
     const [popup, setPopup] = useState<NodeType | null>(null);
-    const initialColorMap: Map<string, ColorMapType> = new Map<string, ColorMapType>();
 
-    edge.forEach(edge => {
-        const colEdge = initialColorMap.get(edge.property);
+    const colorMapManager = useMemo(() => new ColorMapManager(edge), []);
 
-        if (colEdge == undefined) {
-            const color: ColorMapType = { property: edge.property, color: getRandomColor(), hidden: false };
-            initialColorMap.set(edge.property, color);
-        }
-    });
-
-    const [propertyColorMap, setPropertyColorMap] = useState(initialColorMap);
+    const [propertyColorMap, setPropertyColorMap] = useState<Map<string, ColorMapType>>(colorMapManager.getColorMap());
     const [openDialog, setOpenDialog] = useState(false);
 
     // Debounce the function that updates the graph
     const debouncedUpdateColor = useMemo(
         () => debounce((property: string, newColor: ColorMapType) => {
-            setPropertyColorMap(prevMap => {
-                const newMap = new Map(prevMap);
-                newMap.set(property, newColor);
-                return newMap;
-            });
+            colorMapManager.updateColor(property, newColor);
+            setPropertyColorMap(new Map(colorMapManager.getColorMap()));
         }, 20), []
     );
 
