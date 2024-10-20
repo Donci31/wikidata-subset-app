@@ -29,16 +29,14 @@ const getRandomColor = () => {
     return color;
 }
 
-const GraphContainer: React.FC = () => {
+interface GraphContainerProps {
+    sigmaStyle: React.CSSProperties;
+    settings: Record<string, boolean>;
+}
+
+const GraphContainer: React.FC<GraphContainerProps> = ({ sigmaStyle, settings }) => {
+
     const [popup, setPopup] = useState<NodeType | null>(null);
-    const sigmaStyle = { height: "900px", width: "1920px" };
-
-    const settings = {
-        allowInvalidContainer: true,
-        enableEdgeEvents: true,
-        renderEdgeLabels: true,
-    };
-
     const initialColorMap: Map<string, ColorMapType> = new Map<string, ColorMapType>();
 
     edge.forEach(edge => {
