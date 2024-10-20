@@ -4,9 +4,7 @@ import React, {useState, useEffect} from "react";
 
 import {
     ControlsContainer,
-    FullScreenControl,
     SigmaContainer,
-    ZoomControl,
     useRegisterEvents,
     useSigma,
 } from "@react-sigma/core";
@@ -22,8 +20,12 @@ import node from "@/data/node.json";
 import edge from "@/data/edge.json";
 import {EdgeColorDisplay} from "@/components/EdgeColorDisplay";
 import {ColorMapType} from "@/types/ColorMapType";
+import {Fab} from "@mui/material";
+import AddIcon from '@mui/icons-material/Add';
+import AddNodeDialog from "@/components/AddNodeDialog";
 
-const GraphEvents: React.FC<{ setPopup: (node: NodeType | null) => void }> = ({ setPopup }) => {
+
+const GraphEvents: React.FC<{ setPopup: (node: NodeType | null) => void }> = ({setPopup}) => {
     const registerEvents = useRegisterEvents();
     const sigma = useSigma();
     const [draggedNode, setDraggedNode] = useState<string | null>(null);
@@ -100,7 +102,7 @@ const getRandomColor = () => {
 export default function GraphContainer() {
     const [popup, setPopup] = useState<NodeType | null>(null);
 
-    const sigmaStyle = { height: "770px", width: "1920px" }
+    const sigmaStyle = {height: "900px", width: "1920px"}
 
     const settings = {
         allowInvalidContainer: true,
@@ -131,22 +133,38 @@ export default function GraphContainer() {
             return newMap;
         });
     };
+    const [openDialog, setOpenDialog] = useState(false);
+
+    const handleAddNode = (label: string) => {
+    };
 
     return (
-        <SigmaContainer style={sigmaStyle} settings={settings} >
+        <SigmaContainer style={sigmaStyle} settings={settings}>
             <ControlsContainer position={"top-left"}>
-                <EdgeColorDisplay propertyColorMap={propertyColorMap} onColorChange={handleColorChange} />
+                <EdgeColorDisplay propertyColorMap={propertyColorMap} onColorChange={handleColorChange}/>
             </ControlsContainer>
-            <WikidataGraph nodes={node} edges={edge} propertyColorMap={propertyColorMap} />
-            <GraphEvents setPopup={setPopup} />
-            <ControlsContainer position={"bottom-right"}>
-                <ZoomControl />
-                <FullScreenControl />
-            </ControlsContainer>
+            <WikidataGraph nodes={node} edges={edge} propertyColorMap={propertyColorMap}/>
+            <GraphEvents setPopup={setPopup}/>
             <ControlsContainer position={"top-right"}>
-                <SearchBar style={{ width: "200px" }} />
+                <SearchBar style={{width: "200px"}}/>
             </ControlsContainer>
-            <Popup nodeInfo={popup} />
+            <ControlsContainer position={"bottom-right"} style={{border: "none", padding: "30px"}}>
+                <Fab
+                    variant="extended"
+                    color="primary"
+                    aria-label="add"
+                    onClick={() => setOpenDialog(true)}
+                >
+                    <AddIcon sx={{mr: 1}}/>
+                    Add new node
+                </Fab>
+            </ControlsContainer>
+            <Popup nodeInfo={popup}/>
+            <AddNodeDialog
+                open={openDialog}
+                onClose={() => setOpenDialog(false)}
+                onSubmit={handleAddNode}
+            />
         </SigmaContainer>
     );
 }
