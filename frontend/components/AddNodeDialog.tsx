@@ -43,6 +43,6 @@ const AddNodeDialog: React.FC<AddNodeDialogProps> = (
             </DialogActions>
         </Dialog>
     );
-}
+};
 
 export default AddNodeDialog;

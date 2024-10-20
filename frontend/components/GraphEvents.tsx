@@ -72,6 +72,6 @@ const GraphEvents: React.FC<GraphEventProps> = ({ setPopup }: GraphEventProps) =
     }, [registerEvents, sigma, draggedNode, setPopup]);
 
     return null;
-}
+};
 
 export default GraphEvents;
