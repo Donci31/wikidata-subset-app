@@ -1,15 +1,15 @@
 import React, {useEffect, useState} from "react";
 import NodeType from "@/types/NodeType";
 import {useRegisterEvents, useSigma} from "@react-sigma/core";
-import node from "@/data/node.json";
 
 
 interface GraphEventProps {
-    setPopup: (node: NodeType | null) => void;
+    nodes: NodeType[];
+    setPopup: (node: string | null) => void;
 }
 
 
-const GraphEvents: React.FC<GraphEventProps> = ({ setPopup }: GraphEventProps) => {
+const GraphEvents: React.FC<GraphEventProps> = ({ nodes, setPopup }: GraphEventProps) => {
     const registerEvents = useRegisterEvents();
     const sigma = useSigma();
     const [draggedNode, setDraggedNode] = useState<string | null>(null);
@@ -17,19 +17,7 @@ const GraphEvents: React.FC<GraphEventProps> = ({ setPopup }: GraphEventProps) =
     useEffect(() => {
         registerEvents({
             enterNode: (event) => {
-                const nodeId = event.node;
-                const x = event.event.x;
-                const y = event.event.y;
-                const nodeInfo = sigma.getGraph().getNodeAttributes(nodeId);
-
-                const convertedNodeInfo: NodeType = {
-                    id: nodeInfo.id,
-                    label: nodeInfo.wikidata_label,
-                    x: x + 10,
-                    y: y + 10,
-                }
-
-                setPopup(convertedNodeInfo);
+                setPopup(event.node);
             },
             enterEdge: () => {
             },
@@ -38,7 +26,6 @@ const GraphEvents: React.FC<GraphEventProps> = ({ setPopup }: GraphEventProps) =
             },
             downNode: (e) => {
                 setDraggedNode(e.node);
-                sigma.getGraph().setNodeAttribute(e.node, "highlighted", true);
             },
             mousemovebody: (e) => {
                 if (!draggedNode) return;
@@ -46,7 +33,7 @@ const GraphEvents: React.FC<GraphEventProps> = ({ setPopup }: GraphEventProps) =
                 sigma.getGraph().setNodeAttribute(draggedNode, "x", pos.x);
                 sigma.getGraph().setNodeAttribute(draggedNode, "y", pos.y);
 
-                const target = node.find(node => node.id === draggedNode)
+                const target = nodes.find(node => node.id === draggedNode)
 
                 if (target) {
                     target.x = pos.x;
@@ -61,7 +48,6 @@ const GraphEvents: React.FC<GraphEventProps> = ({ setPopup }: GraphEventProps) =
             mouseup: () => {
                 if (draggedNode) {
                     setDraggedNode(null);
-                    sigma.getGraph().removeNodeAttribute(draggedNode, "highlighted");
                 }
             },
 

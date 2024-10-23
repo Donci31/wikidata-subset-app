@@ -38,7 +38,7 @@ const EdgeColorDisplay: React.FC<EdgeColorDisplayProps> = (
 
             {/* Collapsible List */}
             <Collapse in={isListOpen}>
-                <Box maxHeight="250px" overflow="auto" border={1} borderColor="grey.300" borderRadius={2} p={2}>
+                <Box maxHeight="500px" overflow="auto" border={1} borderColor="grey.300" borderRadius={2} p={2}>
                     <List>
                         {Array.from(propertyColorMap.entries()).map(([property, color], index) => (
                             <ListItem

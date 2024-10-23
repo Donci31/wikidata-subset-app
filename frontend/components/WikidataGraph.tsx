@@ -6,8 +6,8 @@ import NodeType from "@/types/NodeType";
 import ColorMapType from "@/types/ColorMapType";
 
 interface GraphProps {
-    nodes: Array<NodeType>,
-    edges: Array<EdgeType>,
+    nodes: NodeType[],
+    edges: EdgeType[],
     propertyColorMap: Map<string, ColorMapType>
 }
 
@@ -29,6 +29,7 @@ const WikidataGraph: FC<GraphProps> = (
                 y: node.y,
                 size: 5,
                 color: "#000000",
+                id: node.id,
                 label: node.label,
                 wikidata_label: node.label,
             })
@@ -52,7 +53,7 @@ const WikidataGraph: FC<GraphProps> = (
         );
 
         loadGraph(graph);
-    }, [propertyColorMap]);
+    }, [nodes, edges, propertyColorMap]);
 
     return null;
 };
