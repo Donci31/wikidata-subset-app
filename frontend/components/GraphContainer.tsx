@@ -7,7 +7,6 @@ import {
 } from "@react-sigma/core";
 import "@react-sigma/core/lib/react-sigma.min.css";
 import NodeType from "@/types/NodeType";
-import Popup from "@/components/ItemPopup";
 import WikidataGraph from "@/components/WikidataGraph";
 import SearchBar from "@/components/SearchBar";
 import EdgeColorDisplay from "@/components/EdgeColorDisplay";
@@ -19,7 +18,8 @@ import GraphEvents from "@/components/GraphEvents";
 import debounce from "@/utils/debounce";
 import ColorMapManager from "@/utils/ColorMapManager";
 import EdgeType from "@/types/EdgeType";
-import ItemPopup from "@/components/ItemPopup";  // Import the new class
+import ItemPopup from "@/components/ItemPopup";
+import LayoutControls from "@/components/LayoutControls";
 
 interface GraphContainerProps {
     node: NodeType[];
@@ -61,6 +61,7 @@ const GraphContainer: React.FC<GraphContainerProps> = (
                     onColorChange={(property, newColor) => debouncedUpdateColor(property, newColor)}
                 />
             </ControlsContainer>
+            <LayoutControls nodes={nodes} setNodes={setNodes}></LayoutControls>
             <WikidataGraph nodes={nodes} edges={edges} propertyColorMap={propertyColorMap}/>
             <GraphEvents nodes={nodes} setPopup={setHighlightedId}/>
             <ControlsContainer position={"top-right"}>
