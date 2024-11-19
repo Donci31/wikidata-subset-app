@@ -1,4 +1,5 @@
 import GraphContainer from "@/components/GraphContainer";
+import {fetchSubset} from "@/app/subset/lib/data";
 
 export default async function SubsetPage({ params }: { params: { id: string } }) {
     const sigmaStyle = { height: "900px", width: "1920px" };
@@ -9,8 +10,10 @@ export default async function SubsetPage({ params }: { params: { id: string } })
         renderEdgeLabels: true,
     };
 
-    const { default: node } = await import(`@/data/node${params.id}.json`, { with: { type: "json" } });
-    const { default: edge } = await import(`@/data/edge${params.id}.json`, { with: { type: "json" } });
+    const data = await fetchSubset(params.id);
+
+    const nodes = data.nodes || [];
+    const edges = data.edges || [];
 
     return (
         <main style={{
@@ -18,7 +21,7 @@ export default async function SubsetPage({ params }: { params: { id: string } })
             justifyContent: 'center',
             alignItems: 'center',
         }}>
-            <GraphContainer node={node} edge={edge} sigmaStyle={sigmaStyle} settings={settings}></GraphContainer>
+            <GraphContainer node={nodes} edge={edges} sigmaStyle={sigmaStyle} settings={settings}></GraphContainer>
         </main>
     );
 }

@@ -1,7 +1,7 @@
 'use client'
 
 // pages/subsets.js
-import { useState } from 'react';
+import {useEffect, useState} from 'react';
 import {
     Container,
     Fab,
@@ -18,13 +18,30 @@ import {
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import Link from 'next/link';
+import {fetchSubsets} from "@/app/subset/lib/data";
+
+interface Subset {
+    id: number;
+    name: string;
+    description: string;
+}
 
 export default function SubsetsPage() {
-    const [subsets, setSubsets] = useState([
-        { id: 1, name: "Sample Subset 1", description: "This is a sample description for subset 1." },
-        { id: 2, name: "Sample Subset 2", description: "This is a sample description for subset 2." },
-        { id: 3, name: "Sample Subset 3", description: "This is a sample description for subset 3." },
-    ]);
+    const [subsets, setSubsets] = useState<Subset[]>([]);
+
+    useEffect(() => {
+        fetchSubsets().then((fetchedSubsets) => {
+            const subsetsWithDescriptions = fetchedSubsets.map((name, index) => ({
+                id: index + 1,
+                name: name,
+                description: `This is a sample description for ${name}.`
+            }));
+
+            setSubsets(subsetsWithDescriptions);
+        }).catch((error) => {
+            console.error("Error fetching subsets:", error);
+        });
+    }, []);
 
     const [openDialog, setOpenDialog] = useState(false);
     const [newSubset, setNewSubset] = useState({ name: '', description: '' });
@@ -59,7 +76,7 @@ export default function SubsetsPage() {
             <Grid2 container spacing={3} justifyContent="center">
                 {subsets.map((subset) => (
                     <Grid2 key={subset.id}>
-                        <Link href={`/subset/${subset.id}`} passHref>
+                        <Link href={`/subset/${subset.name}`} passHref>
                             <Card
                                 sx={{
                                     minHeight: '150px',

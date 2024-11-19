@@ -66,7 +66,7 @@ const GraphContainer: React.FC<GraphContainerProps> = (
             <GraphEvents nodes={nodes} setPopup={setHighlightedId}/>
             <ControlsContainer position={"top-right"}>
                 <SearchBar style={{width: "200px"}}/>
-                <ItemPopup data={nodes.find(node => node.id === highlightedId) || null}/>
+                <ItemPopup data={nodes.find(node => node.id == highlightedId) || null}/>
             </ControlsContainer>
             <ControlsContainer position={"bottom-right"} style={{border: "none"}}>
                 <Fab

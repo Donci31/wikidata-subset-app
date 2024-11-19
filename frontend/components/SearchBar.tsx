@@ -1,7 +1,8 @@
 import React, {ChangeEvent, useState} from "react";
 import {Attributes} from "graphology-types";
 import {useCamera, useSigma} from "@react-sigma/core";
-import {Box, TextField, Autocomplete} from "@mui/material";
+import {Box, TextField, Autocomplete, InputAdornment} from "@mui/material";
+import SearchIcon from '@mui/icons-material/Search';
 
 type SearchLabelKeys = "text" | "placeholder";
 
@@ -100,6 +101,14 @@ export const SearchBar: React.FC<SearchControlProps> = (
                         placeholder={labels["placeholder"] || "Search..."}
                         variant="outlined"
                         fullWidth
+                        InputProps={{
+                            ...params.InputProps,
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <SearchIcon />
+                                </InputAdornment>
+                            ),
+                        }}
                     />
                 )}
             />

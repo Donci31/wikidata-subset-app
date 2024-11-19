@@ -1,0 +1,7 @@
+.idea/
+__pycache__/
+
+wikidata.db
+wikidata.db.wal
+
+subsets/
