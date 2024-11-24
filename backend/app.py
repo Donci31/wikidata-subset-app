@@ -1,7 +1,6 @@
-from flask import Flask, request, jsonify, send_file
-import os
-import json
+from flask import Flask, request, jsonify
 import uuid
+import duckdb
 
 from flask_cors import CORS
 
@@ -10,40 +9,49 @@ from create_subset import create_subset
 app = Flask(__name__)
 CORS(app)
 
-SUBSET_DIR = 'subsets'
-
 @app.route('/generate_subset', methods=['POST'])
 def generate_subset():
     data = request.json
+    name = data.get('name')
     starting_node = data.get('starting_node')
     property_id = data.get('property_id')
     depth = data.get('depth', 5)
 
     subset_id = str(uuid.uuid4())
 
-    data = create_subset(starting_node, property_id, depth)
+    create_subset(subset_id, name, starting_node, property_id, depth)
 
-    with open(f'{SUBSET_DIR}/{subset_id}.json', 'w') as f:
-        json.dump(data, f, indent=4)
+    result = {
+        "subset_id": subset_id,
+        "name": name,
+        "language": "en",
+        "message": "Subset created successfully."
+    }
+
+    return jsonify(result), 201
 
 
 @app.route('/list_subsets', methods=['GET'])
 def list_subsets():
-    subset_files = [f for f in os.listdir(SUBSET_DIR) if f.endswith('.json')]
-    subsets = [file.removesuffix(".json") for file in subset_files]
-    return jsonify(subsets)
+    with duckdb.connect('wikidata.db') as conn:
+        result = conn.execute("SELECT * FROM user_subsets.metadata").df().to_dict(orient='records')
+    return result
 
 
 @app.route('/get_subset/<subset_id>', methods=['GET'])
 def get_subset(subset_id):
-    subset_file = os.path.join(SUBSET_DIR, f'{subset_id}.json')
+    with duckdb.connect('wikidata.db') as conn:
+        node_df = conn.execute(f"SELECT * FROM user_subsets.items where subset_id = '{subset_id}'").df()
+        edge_df = conn.execute(f"SELECT * FROM user_subsets.claims where subset_id = '{subset_id}'").df()
+        colormap = conn.execute(f"SELECT * FROM user_subsets.property where subset_id = '{subset_id}'").df()
 
-    if os.path.exists(subset_file):
-        with open(subset_file, 'r') as file:
-            data = json.load(file)  # Load JSON data from file
-        return jsonify(data)  # Return JSON content of the file
-    else:
-        return jsonify({"error": "Subset not found"}), 404
+    subset_data = {
+        "nodes": node_df.to_dict(orient="records"),
+        "edges": edge_df.to_dict(orient="records"),
+        "colormap": colormap.to_dict(orient="records")
+    }
+
+    return jsonify(subset_data)
 
 
 if __name__ == "__main__":

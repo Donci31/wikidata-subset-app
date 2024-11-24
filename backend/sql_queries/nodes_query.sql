@@ -7,7 +7,7 @@ WITH RECURSIVE bfs AS (
     FROM
         main.claims
     WHERE
-        dst = {starting_node}
+        src = {starting_node}
     AND
         property = {property_id}
 
@@ -21,7 +21,7 @@ WITH RECURSIVE bfs AS (
     FROM
         bfs
     JOIN
-        main.claims c ON bfs.src = c.dst AND c.property = {property_id}
+        main.claims c ON bfs.dst = c.src AND c.property = {property_id}
     WHERE
         bfs.level < {depth}
 ),
@@ -50,4 +50,6 @@ nodes AS (
     LEFT JOIN
         en.items AS items_dst ON node_ids_grouped.id = items_dst.id
 )
-SELECT nodes.*, random() AS x, random() AS y FROM nodes;
+INSERT INTO user_subsets.items (subset_id, id, label, description, level, x, y)
+SELECT '{subset_id}', nodes.id, nodes.label, nodes.description, nodes.level, random() AS x, random() AS y
+FROM nodes;

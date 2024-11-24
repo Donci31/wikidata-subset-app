@@ -1,7 +1,6 @@
 'use client'
 
-// pages/subsets.js
-import {useEffect, useState} from 'react';
+import {useState, useEffect} from 'react';
 import {
     Container,
     Fab,
@@ -15,68 +14,122 @@ import {
     DialogActions,
     Button,
     TextField,
+    Snackbar,
+    Alert,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import Link from 'next/link';
 import {fetchSubsets} from "@/app/subset/lib/data";
 
 interface Subset {
-    id: number;
+    subset_id: string;
     name: string;
-    description: string;
+    language: string;
 }
 
 export default function SubsetsPage() {
     const [subsets, setSubsets] = useState<Subset[]>([]);
 
     useEffect(() => {
-        fetchSubsets().then((fetchedSubsets) => {
-            const subsetsWithDescriptions = fetchedSubsets.map((name, index) => ({
-                id: index + 1,
-                name: name,
-                description: `This is a sample description for ${name}.`
-            }));
+        fetchSubsets()
+            .then((fetchedSubsets) => {
+                console.log(typeof fetchedSubsets);
+                const subsetsWithDescriptions = fetchedSubsets.map(data => ({
+                    subset_id: data.subset_id,
+                    name: data.name,
+                    language: data.language
+                }));
 
-            setSubsets(subsetsWithDescriptions);
-        }).catch((error) => {
-            console.error("Error fetching subsets:", error);
-        });
+                setSubsets(subsetsWithDescriptions);
+            })
+            .catch((error) => {
+                console.error("Error fetching subsets:", error);
+            });
     }, []);
 
     const [openDialog, setOpenDialog] = useState(false);
-    const [newSubset, setNewSubset] = useState({ name: '', description: '' });
+    const [newSubset, setNewSubset] = useState({
+        name: '',
+        startingNode: '',
+        propertyId: '',
+        depth: 5, // Default value
+    });
+    const [snackbar, setSnackbar] = useState({open: false, message: '', severity: 'success'});
 
-    // Handle opening the dialog
+    const handleSnackbarClose = () => {
+        setSnackbar({...snackbar, open: false});
+    };
+
+    const showSnackbar = (message: string, severity: 'success' | 'error') => {
+        setSnackbar({open: true, message, severity});
+    };
+
     const handleClickOpen = () => {
         setOpenDialog(true);
     };
 
-    // Handle closing the dialog
     const handleClose = () => {
         setOpenDialog(false);
     };
 
-    // Handle form submission
-    const handleCreateSubset = () => {
-        if (newSubset.name && newSubset.description) {
-            const newId = subsets.length + 1; // Assign a new ID to the subset
-            setSubsets([...subsets, { id: newId, ...newSubset }]);
-            setNewSubset({ name: '', description: '' }); // Reset the form
-            setOpenDialog(false);
+    const handleCreateSubset = async () => {
+        const {name, startingNode, propertyId, depth} = newSubset;
+        if (name && startingNode && propertyId && depth) {
+            try {
+                const requestBody = {
+                    name,
+                    starting_node: startingNode,
+                    property_id: propertyId,
+                    depth: Number(depth),
+                };
+
+                const response = await fetch('http://localhost:5000/generate_subset', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody),
+                });
+
+                if (response.ok) {
+                    const responseData = await response.json();
+
+                    setSubsets([
+                        ...subsets,
+                        {
+                            subset_id: responseData.subset_id,
+                            name: responseData.name,
+                            language: responseData.language,
+                        },
+                    ]);
+
+                    showSnackbar('Subset created successfully!', 'success');
+                    setNewSubset({name: '', startingNode: '', propertyId: '', depth: 5});
+                    setOpenDialog(false);
+                } else {
+                    const errorText = await response.text();
+                    console.error('Error creating subset:', errorText);
+                    showSnackbar('Error creating subset.', 'error');
+                }
+            } catch (error) {
+                console.error('Error creating subset:', error);
+                showSnackbar('Error creating subset.', 'error');
+            }
+        } else {
+            showSnackbar('Please fill out all fields.', 'error');
         }
     };
 
     return (
-        <Container sx={{ py: 4, maxWidth: 'lg', minHeight: '80vh' }}>
-            <Typography variant="h3" component="h1" gutterBottom sx={{ fontWeight: 600, textAlign: 'center' }}>
+        <Container sx={{py: 4, maxWidth: 'lg', minHeight: '80vh'}}>
+            <Typography variant="h3" component="h1" gutterBottom sx={{fontWeight: 600, textAlign: 'center'}}>
                 Your Subsets
             </Typography>
 
-            {/* Grid Layout using Grid2 */}
             <Grid2 container spacing={3} justifyContent="center">
                 {subsets.map((subset) => (
-                    <Grid2 key={subset.id}>
-                        <Link href={`/subset/${subset.name}`} passHref>
+                    <Grid2 key={subset.subset_id}>
+                        <Link href={`/subset/${subset.subset_id}`} passHref>
                             <Card
                                 sx={{
                                     minHeight: '150px',
@@ -89,11 +142,13 @@ export default function SubsetsPage() {
                                 }}
                             >
                                 <CardContent>
-                                    <Typography variant="h6" component="div" sx={{ fontWeight: 500 }}>
+                                    <Typography variant="h6" component="div" sx={{fontWeight: 500}}>
                                         {subset.name}
                                     </Typography>
-                                    <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                                        {subset.description}
+                                    <Typography variant="body2" color="text.secondary" sx={{mt: 1}}>
+                                        {String.fromCodePoint(...subset.language.toUpperCase()
+                                            .split('')
+                                            .map((char) => 127397 + char.charCodeAt(0)))}
                                     </Typography>
                                 </CardContent>
                             </Card>
@@ -102,7 +157,6 @@ export default function SubsetsPage() {
                 ))}
             </Grid2>
 
-            {/* Floating Action Button (FAB) */}
             <Fab
                 color="primary"
                 aria-label="add"
@@ -117,10 +171,9 @@ export default function SubsetsPage() {
                     },
                 }}
             >
-                <AddIcon />
+                <AddIcon/>
             </Fab>
 
-            {/* Dialog for Creating New Subset */}
             <Dialog open={openDialog} onClose={handleClose}>
                 <DialogTitle>Create New Subset</DialogTitle>
                 <DialogContent dividers>
@@ -131,18 +184,32 @@ export default function SubsetsPage() {
                         fullWidth
                         variant="outlined"
                         value={newSubset.name}
-                        onChange={(e) => setNewSubset({ ...newSubset, name: e.target.value })}
+                        onChange={(e) => setNewSubset({...newSubset, name: e.target.value})}
                     />
                     <TextField
                         margin="dense"
-                        label="Description"
+                        label="Starting Node"
                         fullWidth
-                        multiline
-                        rows={4}
                         variant="outlined"
-                        value={newSubset.description}
-                        onChange={(e) => setNewSubset({ ...newSubset, description: e.target.value })}
-                        sx={{ mt: 2 }}
+                        value={newSubset.startingNode}
+                        onChange={(e) => setNewSubset({...newSubset, startingNode: e.target.value})}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Property ID"
+                        fullWidth
+                        variant="outlined"
+                        value={newSubset.propertyId}
+                        onChange={(e) => setNewSubset({...newSubset, propertyId: e.target.value})}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Depth"
+                        fullWidth
+                        type="number"
+                        variant="outlined"
+                        value={newSubset.depth}
+                        onChange={(e) => setNewSubset({...newSubset, depth: parseInt(e.target.value, 10) || 5})}
                     />
                 </DialogContent>
                 <DialogActions>
@@ -154,6 +221,12 @@ export default function SubsetsPage() {
                     </Button>
                 </DialogActions>
             </Dialog>
+
+            <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={handleSnackbarClose}>
+                <Alert onClose={handleSnackbarClose} sx={{width: '100%'}}>
+                    {snackbar.message}
+                </Alert>
+            </Snackbar>
         </Container>
     );
 }

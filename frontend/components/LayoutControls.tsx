@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import {ControlsContainer, useSigma} from "@react-sigma/core";
+import {ControlsContainer} from "@react-sigma/core";
 import {MenuItem, Select, FormControl, InputLabel, SelectChangeEvent} from "@mui/material";
 import { useLayoutCircular } from "@react-sigma/layout-circular";
 import { useLayoutCirclepack } from "@react-sigma/layout-circlepack";

@@ -7,7 +7,7 @@ WITH RECURSIVE bfs AS (
     FROM
         main.claims
     WHERE
-        dst = {starting_node}
+        src = {starting_node}
     AND
         property = {property_id}
 
@@ -21,7 +21,7 @@ WITH RECURSIVE bfs AS (
     FROM
         bfs
     JOIN
-        main.claims c ON bfs.src = c.dst AND c.property = {property_id}
+        main.claims c ON bfs.dst = c.src AND c.property = {property_id}
     WHERE
         bfs.level < {depth}
 ),
@@ -30,4 +30,5 @@ edges AS (
     FROM bfs
     GROUP BY src, dst
 )
-SELECT * FROM edges;
+INSERT INTO user_subsets.claims (subset_id, src, dst, property)
+SELECT '{subset_id}', edges.src, edges.dst, edges.property FROM edges;

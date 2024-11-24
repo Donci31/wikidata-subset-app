@@ -1,4 +1,10 @@
-export async function fetchSubsets(): Promise<string[]> {
+interface Subset {
+    subset_id: string;
+    name: string;
+    language: string;
+}
+
+export async function fetchSubsets(): Promise<Subset[]> {
     const response = await fetch('http://localhost:5000/list_subsets');
 
     if (response.ok) {
