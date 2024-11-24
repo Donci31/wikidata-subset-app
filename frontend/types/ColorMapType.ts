@@ -1,5 +1,7 @@
 type ColorMapType = {
-    property: string,
+    id: string,
+    label: string,
+    description: string,
     color: string,
     hidden: boolean,
 };

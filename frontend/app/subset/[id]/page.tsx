@@ -14,6 +14,7 @@ export default async function SubsetPage({ params }: { params: { id: string } })
 
     const nodes = data.nodes || [];
     const edges = data.edges || [];
+    const colormap = data.colormap || [];
 
     return (
         <main style={{
@@ -21,7 +22,7 @@ export default async function SubsetPage({ params }: { params: { id: string } })
             justifyContent: 'center',
             alignItems: 'center',
         }}>
-            <GraphContainer node={nodes} edge={edges} sigmaStyle={sigmaStyle} settings={settings}></GraphContainer>
+            <GraphContainer node={nodes} edge={edges} colorMap={colormap} sigmaStyle={sigmaStyle} settings={settings}></GraphContainer>
         </main>
     );
 }

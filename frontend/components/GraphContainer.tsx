@@ -24,18 +24,19 @@ import LayoutControls from "@/components/LayoutControls";
 interface GraphContainerProps {
     node: NodeType[];
     edge: EdgeType[];
+    colorMap: ColorMapType[];
     sigmaStyle: React.CSSProperties;
     settings: Record<string, boolean>;
 }
 
 const GraphContainer: React.FC<GraphContainerProps> = (
-    {node, edge, sigmaStyle, settings}: GraphContainerProps
+    {node, edge, colorMap, sigmaStyle, settings}: GraphContainerProps
 ) => {
     const [nodes, setNodes] = useState<NodeType[]>(node);
     const [edges, setEdges] = useState<EdgeType[]>(edge);
     const [highlightedId, setHighlightedId] = useState<string | null>(null);
 
-    const colorMapManager = useMemo(() => new ColorMapManager(edge), []);
+    const colorMapManager = useMemo(() => new ColorMapManager(colorMap), []);
 
     const [propertyColorMap, setPropertyColorMap] = useState<Map<string, ColorMapType>>(colorMapManager.getColorMap());
     const [openDialog, setOpenDialog] = useState(false);

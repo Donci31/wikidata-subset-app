@@ -61,7 +61,7 @@ const EdgeColorDisplay: React.FC<EdgeColorDisplayProps> = (
                             >
                                 {/* Property Name */}
                                 <Typography variant="body1" fontWeight="bold" color="textPrimary">
-                                    {property}
+                                    {color.label}
                                 </Typography>
 
                                 {/* Color Picker (Visible but covered by card) */}
