@@ -4,8 +4,6 @@ import duckdb
 
 from flask_cors import CORS
 
-from create_subset import create_subset
-
 app = Flask(__name__)
 CORS(app)
 
@@ -19,7 +17,38 @@ def generate_subset():
 
     subset_id = str(uuid.uuid4())
 
-    create_subset(subset_id, name, starting_node, property_id, depth)
+    with duckdb.connect('wikidata.db') as conn:
+        with open('sql_queries/edges_query.sql', 'r') as file:
+            edges_query = file.read().format(
+                subset_id=subset_id,
+                starting_node=starting_node,
+                property_id=property_id,
+                depth=depth
+            )
+            conn.execute(edges_query)
+
+        with open('sql_queries/nodes_query.sql', 'r') as file:
+            nodes_query = file.read().format(
+                subset_id=subset_id,
+                starting_node=starting_node,
+                property_id=property_id,
+                depth=depth
+            )
+            conn.execute(nodes_query)
+
+        with open('sql_queries/property_query.sql', 'r') as file:
+            property_query = file.read().format(
+                subset_id=subset_id
+            )
+            conn.execute(property_query)
+
+        with open('sql_queries/metadata_query.sql', 'r') as file:
+            metadata_query = file.read().format(
+                subset_id=subset_id,
+                name=name,
+                language='en'
+            )
+            conn.execute(metadata_query)
 
     result = {
         "subset_id": subset_id,
