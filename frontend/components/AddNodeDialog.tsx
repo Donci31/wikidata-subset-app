@@ -29,7 +29,9 @@ const AddNodeDialog = (
         // Prepare node data
         const newNode = {
             id: nodeId,
-            label,
+            label: label,
+            description: "",
+            aliases: [],
             x: Math.random(), // Random x, y coordinates for example
             y: Math.random(),
         };

@@ -5,7 +5,7 @@ interface Subset {
 }
 
 export async function fetchSubsets(): Promise<Subset[]> {
-    const response = await fetch('http://localhost:5000/list_subsets');
+    const response = await fetch('http://localhost:3000/api/list_subsets');
 
     if (response.ok) {
         return await response.json();
@@ -16,7 +16,7 @@ export async function fetchSubsets(): Promise<Subset[]> {
 
 
 export async function fetchSubset(subsetId: string) {
-    const response = await fetch(`http://localhost:5000/get_subset/${subsetId}`);
+    const response = await fetch(`http://localhost:3000/api/get_subset/${subsetId}`);
 
     if (response.ok) {
         return await response.json();
