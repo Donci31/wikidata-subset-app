@@ -3,6 +3,7 @@ const nextConfig = {
     experimental: {
         serverComponentsExternalPackages: ["@duckdb/node-api"],
     },
+    output: "standalone"
 };
 
 export default nextConfig;
