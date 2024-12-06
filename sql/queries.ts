@@ -100,7 +100,6 @@ from en.property
 where id in (
     select distinct c.property from user_subsets.claims c where subset_id = $1
 )
-
 `;
 
 export const metadataQuery = `
