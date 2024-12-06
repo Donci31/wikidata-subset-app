@@ -83,7 +83,7 @@ export default function SubsetsPage() {
                     depth: Number(depth),
                 };
 
-                const response = await fetch('/api/generate_subset', {
+                const response = await fetch('http://localhost:3000/api/generate_subset', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

@@ -1,4 +1,4 @@
-import { DuckDBInstance, DuckDBTypeId, DuckDBValue } from '@duckdb/node-api';
+import {DuckDBDecimalValue, DuckDBInstance, DuckDBTypeId, DuckDBValue} from '@duckdb/node-api';
 
 
 export async function GET(request: Request, { params }: { params: Promise<{ subset_id: string }> }) {
@@ -19,8 +19,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ subs
         return data.map((row) =>
             columnNames.reduce((obj: { [key: string]: DuckDBValue }, col, index) => {
                 if (columnTypes[index].typeId === DuckDBTypeId.DECIMAL) {
-                    // @ts-ignore
-                    obj[col] = row[index].toDouble();
+
+                    obj[col] = (row[index] as DuckDBDecimalValue).toDouble();
                 } else {
                     obj[col] = row[index];
                 }
