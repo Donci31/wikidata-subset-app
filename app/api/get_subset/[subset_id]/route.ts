@@ -1,13 +1,9 @@
-import {DuckDBDecimalValue, DuckDBInstance, DuckDBTypeId, DuckDBValue} from '@duckdb/node-api';
+import {DuckDBConnection, DuckDBDecimalValue, DuckDBInstance, DuckDBTypeId, DuckDBValue} from '@duckdb/node-api';
 
 
 export async function GET(request: Request, { params }: { params: Promise<{ subset_id: string }> }) {
-    const subset_id = (await params).subset_id;
-    const instance = await DuckDBInstance.create("wikidata.db", {"access_mode": "READ_ONLY"});
-    const connection = await instance.connect();
-
     // Function to retrieve data as JSON objects
-    async function getData(query: string): Promise<{ [key: string]: DuckDBValue }[]> {
+    async function getData(subset_id: string, query: string, connection: DuckDBConnection): Promise<{ [key: string]: DuckDBValue }[]> {
         const prepared = await connection.prepare(query);
         prepared.bindVarchar(1, subset_id);
 
@@ -30,14 +26,30 @@ export async function GET(request: Request, { params }: { params: Promise<{ subs
     }
 
     try {
+        const subset_id = (await params).subset_id;
+        const instance = await DuckDBInstance.create("wikidata.db", {"access_mode": "READ_ONLY"});
+        const connection = await instance.connect();
+
         // Fetch nodes
-        const nodes = await getData("SELECT * FROM user_subsets.items WHERE subset_id = $1");
+        const nodes = await getData(
+            subset_id,
+            "SELECT * FROM user_subsets.items WHERE subset_id = $1",
+            connection
+        );
 
         // Fetch edges
-        const edges = await getData("SELECT * FROM user_subsets.claims WHERE subset_id = $1");
+        const edges = await getData(
+            subset_id,
+            "SELECT * FROM user_subsets.claims WHERE subset_id = $1",
+            connection
+        );
 
         // Fetch colormap
-        const colormap = await getData("SELECT * FROM user_subsets.property WHERE subset_id = $1");
+        const colormap = await getData(
+            subset_id,
+            "SELECT * FROM user_subsets.property WHERE subset_id = $1",
+            connection
+        );
 
         // Combine into subset_data
         const subset_data = {
