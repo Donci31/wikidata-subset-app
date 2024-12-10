@@ -184,6 +184,7 @@ export default function SubsetsPage() {
                 color="primary"
                 aria-label="add"
                 onClick={handleClickOpen}
+                disabled={true}
                 sx={{
                     position: 'fixed',
                     bottom: 24,
