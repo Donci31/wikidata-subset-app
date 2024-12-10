@@ -33,7 +33,6 @@ export default function SubsetsPage() {
     useEffect(() => {
         fetchSubsets()
             .then((fetchedSubsets) => {
-                console.log(typeof fetchedSubsets);
                 const subsetsWithDescriptions = fetchedSubsets.map(data => ({
                     subset_id: data.subset_id,
                     name: data.name,
@@ -74,14 +73,18 @@ export default function SubsetsPage() {
 
     const handleCreateSubset = async () => {
         const {name, startingNode, propertyId, depth} = newSubset;
-        if (name && startingNode && propertyId && depth) {
+        if (name && startingNode && depth) { // Removed propertyId from required fields
             try {
-                const requestBody = {
+                const requestBody: Record<string, string | number> = {
                     name,
                     starting_node: startingNode,
-                    property_id: propertyId,
                     depth: Number(depth),
                 };
+
+                // Include property_id only if it's not empty
+                if (propertyId) {
+                    requestBody.property_id = propertyId;
+                }
 
                 const response = await fetch('http://localhost:3000/api/generate_subset', {
                     method: 'POST',
@@ -116,7 +119,7 @@ export default function SubsetsPage() {
                 showSnackbar('Error creating subset.', 'error');
             }
         } else {
-            showSnackbar('Please fill out all fields.', 'error');
+            showSnackbar('Please fill out all required fields.', 'error');
         }
     };
 
@@ -132,23 +135,43 @@ export default function SubsetsPage() {
                         <Link href={`/subset/${subset.subset_id}`} passHref>
                             <Card
                                 sx={{
-                                    minHeight: '150px',
+                                    width: '250px',
+                                    height: '200px',
                                     cursor: 'pointer',
                                     transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    padding: '16px',
+                                    border: '1px solid #e0e0e0',
+                                    borderRadius: '8px',
+                                    backgroundColor: '#f9f9f9',
+                                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
                                     '&:hover': {
                                         transform: 'scale(1.05)',
                                         boxShadow: '0px 10px 20px rgba(0, 0, 0, 0.2)',
                                     },
                                 }}
                             >
-                                <CardContent>
-                                    <Typography variant="h6" component="div" sx={{fontWeight: 500}}>
+                                <CardContent sx={{textAlign: 'center'}}>
+                                    <Typography
+                                        variant="h6"
+                                        component="div"
+                                        sx={{fontWeight: 500, marginBottom: '8px'}}
+                                    >
                                         {subset.name}
                                     </Typography>
-                                    <Typography variant="body2" color="text.secondary" sx={{mt: 1}}>
-                                        {String.fromCodePoint(...subset.language.toUpperCase()
-                                            .split('')
-                                            .map((char) => 127397 + char.charCodeAt(0)))}
+                                    <Typography
+                                        variant="body2"
+                                        color="text.secondary"
+                                        sx={{fontSize: '32px', marginBottom: '4px'}}
+                                    >
+                                        {String.fromCodePoint(
+                                            ...subset.language.toUpperCase()
+                                                .split('')
+                                                .map((char) => 127397 + char.charCodeAt(0))
+                                        )}
                                     </Typography>
                                 </CardContent>
                             </Card>
@@ -196,7 +219,7 @@ export default function SubsetsPage() {
                     />
                     <TextField
                         margin="dense"
-                        label="Property ID"
+                        label="Property ID (Optional)"
                         fullWidth
                         variant="outlined"
                         value={newSubset.propertyId}

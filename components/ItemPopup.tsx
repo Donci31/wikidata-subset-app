@@ -21,7 +21,7 @@ const ItemPopup = ({data}: { data: NodeType | null }) => {
     return (
         <Box p={2} width={300}>
             <Typography variant="h6" gutterBottom>
-                {data?.id || "No ID"}
+                {"Q" + data?.id || "No ID"}
             </Typography>
 
             <Divider/>
